@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Owned} from "solmate/auth/Owned.sol";
+import {Owned} from "../lib/solmate/src/auth/Owned.sol";
 
 interface IERC20 {
     function transferFrom(
@@ -9,6 +9,8 @@ interface IERC20 {
         address to,
         uint256 amount
     ) external returns (bool);
+
+    function balanceOf(address account) external view returns (uint256);
 }
 
 /// @title Payouts
@@ -55,24 +57,24 @@ contract Payouts is Owned {
     /// @notice Single Payout
     /// @param receiver The address being transferred to
     function singlePayout(
-        IERC20 token,
+        address token,
         address receiver,
         uint amount
     ) public {
         if (payerAddresses[msg.sender] == false)
             revert PayoutsContract__AddressCannotMakePayouts();
-        if (token.balanceOf(msg.sender) < amount)
+        if (IERC20(token).balanceOf(msg.sender) < amount)
             revert PayoutsContract__BalanceNotEnough();
-        bool success = token.transferFrom(msg.sender, receiver, amount);
+        bool success = IERC20(token).transferFrom(msg.sender, receiver, amount);
         if (!success) revert PayoutsContract__PayoutFailed();
 
-        emit TokenPayout(msg.sender, receiver, amount, address(token));
+        emit TokenPayout(msg.sender, receiver, amount, token);
     }
 
     /// @notice Multiple Payout
     /// @param receivers The addresses being transferred to
     function multiplePayout(
-        IERC20 token,
+        address token,
         address[] calldata receivers,
         uint[] calldata amounts
     ) external {
@@ -80,11 +82,11 @@ contract Payouts is Owned {
         for (uint i = 0; i < amounts.length; i++) {
             totalAmount += amounts[i + 1];
         }
-        if (token.balanceOf(msg.sender) < totalAmount)
+        if (IERC20(token).balanceOf(msg.sender) < totalAmount)
             revert PayoutsContract__BalanceNotEnough();
 
         for (uint i = 0; i < receivers.length; i++) {
-            singlePayout(receivers[i + 1], amounts[i + 1]);
+            singlePayout(token,receivers[i + 1], amounts[i + 1]);
         }
     }
 

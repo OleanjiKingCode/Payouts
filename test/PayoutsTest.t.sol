@@ -3,75 +3,65 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/Payouts.sol";
-import "../mocks/MockERC20.sol";
+import {MockERC20} from "../lib/solmate/src/test/utils/mocks/MockERC20.sol";
 
 contract CounterTest is Test {
     Payouts public payouts;
-    address bob = address(0x1);
     address alice = address(0x2);
     address doe = address(0x3);
     address babe = address(0x4);
-    MockIqToken public IqToken;
+    MockERC20 internal mockERC20;
     uint256 public constant Amount = 2e18;
+    uint256 public constant mintAmount = 100e18;
     uint[] public amounts = [Amount, Amount];
     uint totalAmount = Amount + Amount;
     address[] public arrs = [babe, doe];
 
     function setUp() public {
-        IqToken = new MockIqToken(bob, alice, doe);
-        payouts = new Payouts(bob, address(IqToken));
+        mockERC20 = new MockERC20("Mock Token", "MTN", 18);
+        mockERC20.mint(alice, mintAmount);
+        mockERC20.mint(doe, mintAmount);
+        payouts = new Payouts();
     }
 
     function testaddAddress() public {
         payouts.addAddress(alice);
-        bool aPayer = payouts._payerAddresses(alice);
+        bool aPayer = payouts.payerAddresses(alice);
         assertTrue(aPayer);
     }
 
     function testremoveAddress() public {
         payouts.addAddress(alice);
-        uint currentAmount = payouts.getAmountOfPayers();
-        emit log_named_uint("Added alice ", currentAmount);
         payouts.removeAddress(alice);
-        bool aPayer = payouts._payerAddresses(alice);
-        assertTrue(!aPayer);
+        bool isAPayer = payouts.payerAddresses(alice);
+        assertTrue(!isAPayer);
     }
 
     function testsinglePayout() public {
         payouts.addAddress(alice);
-        uint currentAmount = payouts.getAmountOfPayouts();
-        emit log_uint(currentAmount);
 
         vm.startPrank(alice);
-        IqToken.approve(address(payouts), Amount);
-        uint val = IqToken.balanceOf(alice);
-        emit log_uint(val);
-
-        payouts.singlePayout(doe, Amount);
+        mockERC20.approve(address(payouts), Amount);
+        uint alice_bal = mockERC20.balanceOf(alice);
+        emit log_uint(alice_bal);
+        payouts.singlePayout(address(mockERC20),doe, Amount);
+        uint new_alice_bal = mockERC20.balanceOf(alice);
+        assertEq(new_alice_bal, (mintAmount-Amount));
         vm.stopPrank();
-        uint presentAmount = payouts.getAmountOfPayouts();
-        emit log_uint(presentAmount);
-
-        assertEq(presentAmount, 1);
     }
 
     function testmultiplePayout() public {
         payouts.addAddress(alice);
-        uint currentAmount = payouts.getAmountOfPayouts();
-        emit log_uint(currentAmount);
 
         // for 2 people
 
         vm.startPrank(alice);
-        IqToken.approve(address(payouts), totalAmount);
-        uint val = IqToken.balanceOf(alice);
-        emit log_uint(val);
-
-        payouts.multiplePayout(arrs, amounts);
+        mockERC20.approve(address(payouts), totalAmount);
+        uint old_alice_bal = mockERC20.balanceOf(alice);
+        emit log_uint(old_alice_bal);
+        payouts.multiplePayout(address(mockERC20),arrs, amounts);
+        uint new_alice_bal = mockERC20.balanceOf(alice);
+        assertEq(new_alice_bal, (mintAmount-Amount));
         vm.stopPrank();
-        uint presentAmount = payouts.getAmountOfPayouts();
-        emit log_uint(presentAmount);
-
-        assertEq(presentAmount, 2);
     }
 }
