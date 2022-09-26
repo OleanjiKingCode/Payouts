@@ -1,165 +1,102 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import "../lib/openzeppelin-contracts/contracts/utils/Counters.sol";
-import "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {Owned} from "solmate/auth/Owned.sol";
 
-error PayoutsContract__SinglePayoutFailed();
-error PayoutsContract__MultiplePayoutsFailed();
-error PayoutsContract__AddressAlreadyAdded();
-error PayoutsContract__AddressNotYetAdded();
-error PayoutsContract__AddressCannotMakePayouts();
-error PayoutsContract__BalanceNotEnough();
-error PayoutsContract__CannotPayZeroAddress();
-error PayoutsContract__CannotAddZeroAddress();
+interface IERC20 {
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+}
 
-contract Payouts is Ownable {
-    using Counters for Counters.Counter;
-    uint256 public number;
-    address payable admin;
-    address IqTokenAddress;
-    Counters.Counter public noOfAllPayouts;
-    Counters.Counter public noOfAllPayers;
+/// @title Payouts
+/// @author Oleanji
+/// @notice A contract to pay editors
 
-    constructor(address _owner, address _tokenAddress) {
-        admin = payable(_owner);
-        IqTokenAddress = _tokenAddress;
+contract Payouts is Owned {
+    /// -----------------------------------------------------------------------
+    /// Errors
+    /// -----------------------------------------------------------------------
+
+    error PayoutsContract__PayoutFailed();
+    error PayoutsContract__AddressCannotMakePayouts();
+    error PayoutsContract__BalanceNotEnough();
+
+    /// -----------------------------------------------------------------------
+    /// Mapping
+    /// -----------------------------------------------------------------------
+    mapping(address => bool) public payerAddresses;
+
+    /// -----------------------------------------------------------------------
+    /// Constructor
+    /// -----------------------------------------------------------------------
+    constructor() Owned(msg.sender) {}
+
+    /// -----------------------------------------------------------------------
+    /// External functions
+    /// -----------------------------------------------------------------------
+
+    /// @notice Add address to payers
+    /// @param payer The address to add
+    function addAddress(address payer) external onlyOwner {
+        payerAddresses[payer] = true;
+        emit AddressToPayersList(payer, true);
     }
 
-    struct payers {
-        uint Id;
-        address payersAddress;
-        bool _isRemoved;
+    /// @notice Remove address from payers
+    /// @param payer The address to remove
+    function removeAddress(address payer) external onlyOwner {
+        payerAddresses[payer] = false;
+        emit AddressToPayersList(payer, false);
     }
 
-    mapping(address => bool) public _payerAddresses;
-    mapping(uint => payers) public idToPayers;
-
-    event addressToPayersList(bool _action, address payer, bool isDeleted);
-
-    event tokenPayout(
-        uint payoutId,
-        address payer,
+    /// @notice Single Payout
+    /// @param receiver The address being transferred to
+    function singlePayout(
+        IERC20 token,
         address receiver,
-        uint amount,
-        uint date
-    );
-
-    function addAddress(address _payer) public onlyOwner {
-        if (_payer == address(0))
-            revert PayoutsContract__CannotAddZeroAddress();
-        if (_payerAddresses[_payer] == true)
-            revert PayoutsContract__AddressAlreadyAdded();
-        _payerAddresses[_payer] = true;
-        noOfAllPayers.increment();
-        uint currentNum = noOfAllPayers.current();
-        idToPayers[currentNum] = payers(currentNum, _payer, false);
-        emit addressToPayersList(true, _payer, false);
-    }
-
-    function removeAddress(address _payer) public onlyOwner {
-        if (_payerAddresses[_payer] == false)
-            revert PayoutsContract__AddressNotYetAdded();
-        _payerAddresses[_payer] = false;
-        uint currentNum = noOfAllPayers.current();
-        for (uint i = 0; i < currentNum; i++) {
-            if (idToPayers[i + 1].payersAddress == _payer) {
-                idToPayers[i + 1]._isRemoved = true;
-            }
-        }
-        emit addressToPayersList(false, _payer, true);
-    }
-
-    function getAllPayers() public view returns (payers[] memory) {
-        uint currentNum = noOfAllPayers.current();
-        uint currentIndex = 0;
-        payers[] memory _payers = new payers[](currentNum);
-        for (uint256 index = 0; index < currentNum; index++) {
-            address payerAccount = idToPayers[index + 1].payersAddress;
-            if (_payerAddresses[payerAccount] == true) {
-                uint currentCount = idToPayers[index + 1].Id;
-                payers storage all = idToPayers[currentCount];
-                _payers[currentIndex] = all;
-                currentIndex += 1;
-            }
-        }
-        return _payers;
-    }
-
-    function singlePayout(address _receiver, uint amount) public payable {
-        if (_receiver == address(0))
-            revert PayoutsContract__CannotPayZeroAddress();
-        if (_payerAddresses[msg.sender] == false)
+        uint amount
+    ) public {
+        if (payerAddresses[msg.sender] == false)
             revert PayoutsContract__AddressCannotMakePayouts();
-        if (IERC20(IqTokenAddress).balanceOf(msg.sender) < amount)
+        if (token.balanceOf(msg.sender) < amount)
             revert PayoutsContract__BalanceNotEnough();
-        bool success = IERC20(IqTokenAddress).transferFrom(
-            msg.sender,
-            _receiver,
-            amount
-        );
-        if (!success) revert PayoutsContract__SinglePayoutFailed();
+        bool success = token.transferFrom(msg.sender, receiver, amount);
+        if (!success) revert PayoutsContract__PayoutFailed();
 
-        noOfAllPayouts.increment();
-        uint currentId = noOfAllPayouts.current();
-
-        emit tokenPayout(
-            currentId,
-            msg.sender,
-            _receiver,
-            amount,
-            block.timestamp
-        );
+        emit TokenPayout(msg.sender, receiver, amount, address(token));
     }
 
-    function getAmountOfPayouts() public view returns (uint) {
-        uint currentValue = noOfAllPayouts.current();
-        return currentValue;
-    }
-
-    function getAmountOfPayers() public view returns (uint) {
-        uint currentValue = noOfAllPayers.current();
-        return currentValue;
-    }
-
+    /// @notice Multiple Payout
+    /// @param receivers The addresses being transferred to
     function multiplePayout(
-        address[] calldata _receivers,
+        IERC20 token,
+        address[] calldata receivers,
         uint[] calldata amounts
-    ) public payable {
-        if (_payerAddresses[msg.sender] == false)
-            revert PayoutsContract__AddressCannotMakePayouts();
-        uint _totalAmount;
+    ) external {
+        uint totalAmount;
         for (uint i = 0; i < amounts.length; i++) {
-            _totalAmount += amounts[i];
+            totalAmount += amounts[i + 1];
         }
-        if (IERC20(IqTokenAddress).balanceOf(msg.sender) < _totalAmount)
+        if (token.balanceOf(msg.sender) < totalAmount)
             revert PayoutsContract__BalanceNotEnough();
 
-        for (uint i = 0; i < _receivers.length; i++) {
-            if (_receivers[i] == address(0))
-                revert PayoutsContract__CannotPayZeroAddress();
-            bool success = IERC20(IqTokenAddress).transferFrom(
-                msg.sender,
-                _receivers[i],
-                amounts[i]
-            );
-            if (!success) revert PayoutsContract__SinglePayoutFailed();
-
-            noOfAllPayouts.increment();
-            uint currentId = noOfAllPayouts.current();
-
-            emit tokenPayout(
-                currentId,
-                msg.sender,
-                _receivers[i],
-                amounts[i],
-                block.timestamp
-            );
+        for (uint i = 0; i < receivers.length; i++) {
+            singlePayout(receivers[i + 1], amounts[i + 1]);
         }
     }
 
-    receive() external payable {}
+    /// -----------------------------------------------------------------------
+    /// Events
+    /// -----------------------------------------------------------------------
+    event AddressToPayersList(address indexed _account, bool _action);
 
-    fallback() external payable {}
+    event TokenPayout(
+        address indexed _from,
+        address _receiver,
+        uint _amount,
+        address _token
+    );
 }
