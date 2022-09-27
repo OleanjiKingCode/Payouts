@@ -11,11 +11,9 @@ contract CounterTest is Test {
     address doe = address(0x3);
     address babe = address(0x4);
     MockERC20 internal mockERC20;
-    uint256 public constant Amount = 2e18;
     uint256 public constant mintAmount = 100e18;
-    uint[] public amounts = [2e18, 2e18];
-    uint totalAmount = Amount + Amount;
-    address[] public arrs = [babe, doe];
+    uint[] public _amountsArray = [3e18, 4e18];
+    address[] public _addressesArray = [babe, doe];
 
     function setUp() public {
         mockERC20 = new MockERC20("Mock Token", "MTN", 18);
@@ -38,15 +36,13 @@ contract CounterTest is Test {
     }
 
     function testsinglePayout() public {
-        payouts.addAddress(alice);
-
-        vm.startPrank(alice);
         
-        uint _bal = mockERC20.balanceOf(address(payouts));
-        emit log_uint(_bal);
-        payouts.singlePayout(address(mockERC20),doe, Amount);
-        uint new_bal = mockERC20.balanceOf(address(payouts));
-        assertEq(new_bal, 98e18);
+     
+        payouts.addAddress(alice);
+        vm.startPrank(alice);
+        payouts.singlePayout(address(mockERC20),_addressesArray[0], _amountsArray[0]);
+        uint new_bal = mockERC20.balanceOf(_addressesArray[0]);
+        assertEq(new_bal, _amountsArray[0]);
         vm.stopPrank();
     }
 
@@ -54,11 +50,11 @@ contract CounterTest is Test {
         payouts.addAddress(alice);
         // for 2 people
         vm.startPrank(alice);
-        uint old_bal = mockERC20.balanceOf(address(payouts));
-        emit log_uint(old_bal);
-        payouts.multiplePayout(address(mockERC20),arrs, amounts);
-        uint new_bal = mockERC20.balanceOf(address(payouts));
-        assertEq(new_bal, 96e18);
+        payouts.multiplePayout(address(mockERC20),_addressesArray, _amountsArray);
+        uint babe_bal = mockERC20.balanceOf(address(babe));
+        uint doe_bal = mockERC20.balanceOf(address(doe));
+        assertEq(babe_bal, 3e18);
+        assertEq(doe_bal, 4e18);
         vm.stopPrank();
     }
 }
