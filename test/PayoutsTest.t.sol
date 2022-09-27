@@ -13,15 +13,15 @@ contract CounterTest is Test {
     MockERC20 internal mockERC20;
     uint256 public constant Amount = 2e18;
     uint256 public constant mintAmount = 100e18;
-    uint[] public amounts = [Amount, Amount];
+    uint[] public amounts = [2e18, 2e18];
     uint totalAmount = Amount + Amount;
     address[] public arrs = [babe, doe];
 
     function setUp() public {
         mockERC20 = new MockERC20("Mock Token", "MTN", 18);
-        mockERC20.mint(alice, mintAmount);
-        mockERC20.mint(doe, mintAmount);
+       
         payouts = new Payouts();
+        mockERC20.mint(address(payouts), mintAmount);
     }
 
     function testaddAddress() public {
@@ -41,27 +41,24 @@ contract CounterTest is Test {
         payouts.addAddress(alice);
 
         vm.startPrank(alice);
-        mockERC20.approve(address(payouts), Amount);
-        uint alice_bal = mockERC20.balanceOf(alice);
-        emit log_uint(alice_bal);
+        
+        uint _bal = mockERC20.balanceOf(address(payouts));
+        emit log_uint(_bal);
         payouts.singlePayout(address(mockERC20),doe, Amount);
-        uint new_alice_bal = mockERC20.balanceOf(alice);
-        assertEq(new_alice_bal, (mintAmount-Amount));
+        uint new_bal = mockERC20.balanceOf(address(payouts));
+        assertEq(new_bal, 98e18);
         vm.stopPrank();
     }
 
     function testmultiplePayout() public {
         payouts.addAddress(alice);
-
         // for 2 people
-
         vm.startPrank(alice);
-        mockERC20.approve(address(payouts), totalAmount);
-        uint old_alice_bal = mockERC20.balanceOf(alice);
-        emit log_uint(old_alice_bal);
+        uint old_bal = mockERC20.balanceOf(address(payouts));
+        emit log_uint(old_bal);
         payouts.multiplePayout(address(mockERC20),arrs, amounts);
-        uint new_alice_bal = mockERC20.balanceOf(alice);
-        assertEq(new_alice_bal, (mintAmount-Amount));
+        uint new_bal = mockERC20.balanceOf(address(payouts));
+        assertEq(new_bal, 96e18);
         vm.stopPrank();
     }
 }

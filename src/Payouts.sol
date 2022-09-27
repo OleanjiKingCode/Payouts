@@ -10,6 +10,8 @@ interface IERC20 {
         uint256 amount
     ) external returns (bool);
 
+    function transfer(address to, uint256 amount) external returns (bool);
+
     function balanceOf(address account) external view returns (uint256);
 }
 
@@ -63,12 +65,12 @@ contract Payouts is Owned {
     ) public {
         if (payerAddresses[msg.sender] == false)
             revert PayoutsContract__AddressCannotMakePayouts();
-        if (IERC20(token).balanceOf(msg.sender) < amount)
+        if (IERC20(token).balanceOf(address(this)) < amount)
             revert PayoutsContract__BalanceNotEnough();
-        bool success = IERC20(token).transferFrom(msg.sender, receiver, amount);
+        bool success = IERC20(token).transfer(receiver, amount);
         if (!success) revert PayoutsContract__PayoutFailed();
 
-        emit TokenPayout(msg.sender, receiver, amount, token);
+        emit TokenPayout(address(this), receiver, amount, token);
     }
 
     /// @notice Multiple Payout
@@ -80,13 +82,13 @@ contract Payouts is Owned {
     ) external {
         uint totalAmount;
         for (uint i = 0; i < amounts.length; i++) {
-            totalAmount += amounts[i + 1];
+            totalAmount += amounts[i];
         }
-        if (IERC20(token).balanceOf(msg.sender) < totalAmount)
+        if (IERC20(token).balanceOf(address(this)) < totalAmount)
             revert PayoutsContract__BalanceNotEnough();
 
         for (uint i = 0; i < receivers.length; i++) {
-            singlePayout(token,receivers[i + 1], amounts[i + 1]);
+            singlePayout(token, receivers[i], amounts[i]);
         }
     }
 
