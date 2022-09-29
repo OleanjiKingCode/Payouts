@@ -6,18 +6,15 @@ import "../src/Payouts.sol";
 import {MockERC20} from "../lib/solmate/src/test/utils/mocks/MockERC20.sol";
 
 contract CounterTest is Test {
-    Payouts public payouts;
-    address alice = address(0x2);
-    address doe = address(0x3);
-    address babe = address(0x4);
-    MockERC20 internal mockERC20;
-    uint256 public constant mintAmount = 100e18;
-    uint[] public _amountsArray = [3e18, 4e18];
-    address[] public _addressesArray = [babe, doe];
+    Payouts private payouts;
+    address private alice = address(0x2);
+    address private doe = address(0x3);
+    address private babe = address(0x4);
+    MockERC20 private mockERC20;
 
     function setUp() public {
         mockERC20 = new MockERC20("Mock Token", "MTN", 18);
-       
+        uint256 mintAmount = 100e18;
         payouts = new Payouts();
         mockERC20.mint(address(payouts), mintAmount);
     }
@@ -36,25 +33,37 @@ contract CounterTest is Test {
     }
 
     function testsinglePayout() public {
-        
-     
+        uint256 payoutValue = 3e18;
         payouts.addAddress(alice);
         vm.startPrank(alice);
-        payouts.singlePayout(address(mockERC20),_addressesArray[0], _amountsArray[0]);
-        uint new_bal = mockERC20.balanceOf(_addressesArray[0]);
-        assertEq(new_bal, _amountsArray[0]);
+        payouts.singlePayout(address(mockERC20), doe, payoutValue);
+        uint newBal = mockERC20.balanceOf(doe);
+        assertEq(newBal, payoutValue);
         vm.stopPrank();
     }
 
     function testmultiplePayout() public {
+        uint[] memory payoutValues = new uint[](2);
+        payoutValues[0] = 3e18;
+        payoutValues[1] = 4e18;
+
+        address[] memory receivingAccounts = new address[](2);
+        receivingAccounts[0] = babe;
+        receivingAccounts[1] = doe;
+
         payouts.addAddress(alice);
-        // for 2 people
         vm.startPrank(alice);
-        payouts.multiplePayout(address(mockERC20),_addressesArray, _amountsArray);
-        uint babe_bal = mockERC20.balanceOf(address(babe));
-        uint doe_bal = mockERC20.balanceOf(address(doe));
-        assertEq(babe_bal, 3e18);
-        assertEq(doe_bal, 4e18);
+
+        payouts.multiplePayout(
+            address(mockERC20),
+            receivingAccounts,
+            payoutValues
+        );
+
+        uint babeBal = mockERC20.balanceOf(address(babe));
+        uint doeBal = mockERC20.balanceOf(address(doe));
+        assertEq(babeBal, 3e18);
+        assertEq(doeBal, 4e18);
         vm.stopPrank();
     }
 }
