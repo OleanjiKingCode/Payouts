@@ -32,6 +32,32 @@ contract CounterTest is Test {
         assertTrue(!isAPayer);
     }
 
+    function testFailPayoutsContract__BalanceNotEnough() public {
+        Payouts newPayout;
+        uint256 prankValue = 1e18;
+        newPayout = new Payouts();
+        newPayout.addAddress(alice);
+        vm.startPrank(alice);
+        newPayout.singlePayout(address(mockERC20), doe, prankValue);
+        vm.expectRevert("PayoutsContract__BalanceNotEnough");
+    }
+
+    function testFailPayoutsContract__AddressCannotMakePayouts() public {
+        uint256 prankValue = 1e18;
+        vm.startPrank(doe);
+        payouts.singlePayout(address(mockERC20), babe, prankValue);
+        vm.expectRevert("PayoutsContract__AddressCannotMakePayouts");
+    }
+
+    function testFailPayoutsContract__PayoutFailed() public {
+        uint256 prankValue = 1e18;
+        address prankToken = address(0x0);
+        payouts.addAddress(alice);
+        vm.startPrank(alice);
+        payouts.singlePayout(prankToken, doe, prankValue);
+        vm.expectRevert("PayoutsContract__AddressCannotMakePayouts");
+    }
+
     function testsinglePayout() public {
         uint256 payoutValue = 3e18;
         payouts.addAddress(alice);
