@@ -4,4 +4,5 @@ lsp
 .idea
 .env
 broadcast
+/*/node_modules
 

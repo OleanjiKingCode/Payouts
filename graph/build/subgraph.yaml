@@ -1,0 +1,30 @@
+specVersion: 0.0.4
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Payouts
+    network: mumbai
+    source:
+      address: "0xCca2C72a79e4F3307caa469F12085Be6Fca2E15f"
+      abi: Payouts
+      startBlock: 28440107
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AddressToPayersList
+        - OwnerUpdated
+        - TokenPayout
+      abis:
+        - name: Payouts
+          file: Payouts\abis\Payouts.json
+      eventHandlers:
+        - event: AddressToPayersList(indexed address,bool)
+          handler: handleAddressToPayersList
+        - event: OwnerUpdated(indexed address,indexed address)
+          handler: handleOwnerUpdated
+        - event: TokenPayout(indexed address,address,uint256,address)
+          handler: handleTokenPayout
+      file: Payouts\Payouts.wasm

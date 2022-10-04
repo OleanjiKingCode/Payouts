@@ -1,0 +1,21 @@
+type PayoutsRecord @entity {
+  id: ID!
+  Sender: Bytes!
+  Receiver: Bytes! # address
+  Date: String! # address
+  Amount: BigInt!
+  Transaction: String!
+  TokenAddress: Bytes!
+}
+
+type Editors @entity {
+  id: ID!
+  Address: Bytes!
+  Totalamount: BigInt!
+}
+
+type Payers @entity {
+  id: ID!
+  Address: Bytes!
+  Deleted: Boolean!
+}
