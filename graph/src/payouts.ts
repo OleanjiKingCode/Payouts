@@ -1,5 +1,6 @@
 import {
   Payouts,
+  OwnerUpdated,
   AddressToPayersList,
   TokenPayout
 } from "../generated/Payouts/Payouts"
@@ -16,7 +17,7 @@ export function handleaddressToPayersList(event: AddressToPayersList): void {
   entity.Deleted = event.params._action;
   entity.save();
 }
-
+export function handleOwnerUpdated(event: AddressToPayersList): void {}
 export function handletokenPayout(event: TokenPayout): void {
   let entity = PayoutsRecord.load(event.transaction.hash.toString());
 
@@ -24,7 +25,7 @@ export function handletokenPayout(event: TokenPayout): void {
     entity = new PayoutsRecord(event.transaction.hash.toString());
   }
 
-  entity.Amount = event.params._amount;
+  entity.Rewards = event.params._amount;
   entity.Date = event.block.timestamp.toString();
   entity.Sender = event.params._from;
   entity.Receiver = event.params._receiver;
@@ -36,9 +37,9 @@ export function handletokenPayout(event: TokenPayout): void {
   }
 
   new_entity.Address = event.params._receiver;
-  let current_amount = new_entity.Totalamount;
+  let current_amount = new_entity.TotalRewards;
   current_amount.plus(event.params._amount);
-  new_entity.Totalamount = current_amount;
+  new_entity.TotalRewards = current_amount;
 
   new_entity.save();
   entity.save();

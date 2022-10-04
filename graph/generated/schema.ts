@@ -69,13 +69,13 @@ export class PayoutsRecord extends Entity {
     this.set("Date", Value.fromString(value));
   }
 
-  get Amount(): BigInt {
-    let value = this.get("Amount");
+  get Rewards(): BigInt {
+    let value = this.get("Rewards");
     return value!.toBigInt();
   }
 
-  set Amount(value: BigInt) {
-    this.set("Amount", Value.fromBigInt(value));
+  set Rewards(value: BigInt) {
+    this.set("Rewards", Value.fromBigInt(value));
   }
 
   get Transaction(): string {
@@ -137,13 +137,13 @@ export class Editors extends Entity {
     this.set("Address", Value.fromBytes(value));
   }
 
-  get Totalamount(): BigInt {
-    let value = this.get("Totalamount");
+  get TotalRewards(): BigInt {
+    let value = this.get("TotalRewards");
     return value!.toBigInt();
   }
 
-  set Totalamount(value: BigInt) {
-    this.set("Totalamount", Value.fromBigInt(value));
+  set TotalRewards(value: BigInt) {
+    this.set("TotalRewards", Value.fromBigInt(value));
   }
 }
 

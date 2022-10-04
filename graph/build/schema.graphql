@@ -3,7 +3,7 @@ type PayoutsRecord @entity {
   Sender: Bytes!
   Receiver: Bytes! # address
   Date: String! # address
-  Amount: BigInt!
+  Rewards: BigInt!
   Transaction: String!
   TokenAddress: Bytes!
 }
@@ -11,7 +11,7 @@ type PayoutsRecord @entity {
 type Editors @entity {
   id: ID!
   Address: Bytes!
-  Totalamount: BigInt!
+  TotalRewards: BigInt!
 }
 
 type Payers @entity {
