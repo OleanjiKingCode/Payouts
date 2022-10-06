@@ -14,22 +14,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="" />
       </Head>
       <Flex direction="column" mx="auto" w="full">
-        <chakra.div w="full">
-          <chakra.div
-            h="4.375em"
-            borderBottomColor="divider"
-            borderBottomWidth="1px"
-            pos="sticky"
-            top="0"
-            px="6"
-            transition="box-shadow 0.2s"
-            backdropFilter="blur(2px)"
-            bg="bodyBg"
-            zIndex="sticky"
-          >
-            <Navbar />
-          </chakra.div>
-        </chakra.div>
+        
         <chakra.div pt={{ base: 6, lg: 20 }}>
           <HeroSection />
           <Stats />

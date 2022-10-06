@@ -12,6 +12,7 @@ import {
   FlexProps,
   LinkOverlay,
   Text,
+  chakra,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
@@ -45,24 +46,24 @@ export const Navbar = (props: FlexProps) => {
         fontSize="sm"
         {...props}
       >
-        <BraindaoLogo />
-        <Text fontWeight="bold" fontSize="lg">
-          Editors Payouts
-        </Text>
-        <Spacer />
-        <NextLink href="/Payouts" passHref>
-          <LinkOverlay>
-            <Text fontWeight="bold" fontSize="lg" px={4}>
-              Payouts
+        <NextLink href="/" passHref>
+          <Flex as="a" alignItems="center" gap="3" cursor="pointer">
+            <BraindaoLogo />
+            <Text fontWeight="bold" fontSize="lg">
+              Editors Payouts
             </Text>
-          </LinkOverlay>
+          </Flex>
         </NextLink>
-        <NextLink href="/Lists" passHref>
-          <LinkOverlay>
-            <Text fontWeight="bold" fontSize="lg" px={4}>
-              Lists
-            </Text>
-          </LinkOverlay>
+        <Spacer />
+        <NextLink href="/payouts" passHref>
+          <Text fontWeight="bold" as="a" fontSize="lg" px={4}>
+            Payouts
+          </Text>
+        </NextLink>
+        <NextLink href="/lists" passHref>
+          <Text fontWeight="bold" as="a" fontSize="lg" px={4}>
+            Lists
+          </Text>
         </NextLink>
 
         <Menu>
