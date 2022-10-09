@@ -4,22 +4,25 @@ import {
   AddressToPayersList,
   TokenPayout,
 } from "../generated/Payouts/Payouts";
-import { PayoutsRecord, Editors, PayoutsPayers, Owners } from "../generated/schema";
+import { Editor, Payer, PayoutsRecord, Owner } from "../generated/schema";
 
 export function handleAddressToPayersList(event: AddressToPayersList): void {
-  let entity = PayoutsPayers.load(event.params._account.toString());
+  let entity = Payer.load(event.params._account.toString());
 
   if (!entity) {
-    entity = new PayoutsPayers(event.params._account.toString());
+    entity = new Payer(event.params._account.toString());
   }
-  entity.Deleted = event.params._action;
+
+  entity.Address = event.params._account;
+  let isAmong = event.params._action;
+  entity.Deleted = !isAmong;
   entity.save();
 }
 export function handleOwnerUpdated(event: OwnerUpdated): void {
-  let entity = Owners.load(event.params.user.toString());
+  let entity = Owner.load(event.params.user.toString());
 
   if (!entity) {
-    entity = new Owners(event.params.user.toString());
+    entity = new Owner(event.params.user.toString());
   }
 
   entity.Address = event.params.newOwner;
@@ -38,9 +41,9 @@ export function handletokenPayout(event: TokenPayout): void {
   entity.Receiver = event.params._receiver;
   entity.Transaction = event.transaction.hash.toString();
 
-  let new_entity = Editors.load(event.params._receiver.toString());
+  let new_entity = Editor.load(event.params._receiver.toString());
   if (!new_entity) {
-    new_entity = new Editors(event.params._receiver.toString());
+    new_entity = new Editor(event.params._receiver.toString());
   }
 
   new_entity.Address = event.params._receiver;

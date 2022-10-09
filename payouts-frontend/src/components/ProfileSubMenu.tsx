@@ -7,10 +7,10 @@ import {
   PopoverContent,
   PopoverTrigger,
   Text,
-  chakra,
   IconProps,
   useClipboard,
   FlexProps,
+  chakra,
   ComponentWithAs,
   Icon,
 } from "@chakra-ui/react";
@@ -80,11 +80,10 @@ const ProfileSubMenu = () => {
               address={address}
             />
           }
+          fontSize="sm"
           rightIcon={<FaChevronDown />}
         >
-          <Text fontSize="sm" fontWeight="medium">
-            {address && shortenAccount(address)}
-          </Text>
+          {address && shortenAccount(address)}
         </Button>
       </PopoverTrigger>
       <PopoverContent

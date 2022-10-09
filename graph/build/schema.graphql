@@ -1,5 +1,6 @@
-type PayoutsPayers @entity {
+type Payer @entity {
   id: ID!
+  Address: Bytes!
   Deleted: Boolean!
 }
 type PayoutsRecord @entity {
@@ -12,13 +13,13 @@ type PayoutsRecord @entity {
   TokenAddress: Bytes!
 }
 
-type Editors @entity {
+type Editor @entity {
   id: ID!
   Address: Bytes!
   TotalRewards: BigInt!
 }
 
-type Owners @entity {
+type Owner @entity {
   id: ID!
   Address: Bytes!
 }

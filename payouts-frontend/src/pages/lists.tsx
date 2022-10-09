@@ -21,66 +21,60 @@ import {
   ModalHeader,
   ModalOverlay,
   useDisclosure,
-  useMenuState,
+  Spinner,
   useToast,
 } from "@chakra-ui/react";
-import type { NextPage } from "next";
+import { InferGetServerSidePropsType } from "next";
 import React, { useState } from "react";
 import shortenAccount from "../utils/shortenAccount";
-import { BigNumber, Signer, utils, constants, Contract } from "ethers";
-import {
-  useAccount,
-  useContract,
-  useContractRead,
-  useContractWrite,
-  useSigner,
-} from "wagmi";
+import { utils } from "ethers";
+import { useAccount, useContract, useContractWrite, useProvider } from "wagmi";
 import { PAYERS_LIST } from "../components/types/payersType";
 import { GET_PAYERS_LISTS } from "../components/Queries";
 import { config } from "../config/index";
 import { payoutAbi } from "../components/abis/payouts";
 import { createClient } from "urql";
-
 const client = createClient({
   url: config.PayoutsGraphApi,
 });
 
-type ListsProps = {
-  listData: PAYERS_LIST[];
-};
-
-async function GetList() {
-  const data = await client.query(GET_PAYERS_LISTS, undefined).toPromise();
-  return data.data?.payers;
-}
-
-export async function getServerSideProps() {
-  const data = await GetList();
-
+export const getServerSideProps = async () => {
+  const info = await client.query(GET_PAYERS_LISTS, undefined).toPromise();
+  const data: PAYERS_LIST[] = info.data?.payers;
   return {
     props: {
-      lists: data ? data : [],
+      listData: data ? data : [],
     },
   };
-}
+};
 
-const Lists = (props: ListsProps) => {
-  const { listData } = props;
+function Lists({
+  listData,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isOpenRemove,
     onOpen: onOpenRemove,
     onClose: onCloseRemove,
   } = useDisclosure();
+
+  const provider = useProvider();
+
   const [newPayer, setNewPayer] = useState("");
   const [removePayer, setRemovePayer] = useState("");
-  const { address, isConnected: isUserConnected } = useAccount();
+  const [loading, setLoading] = useState(false);
+  const { address: currentUser, isConnected: isUserConnected } = useAccount();
   const toast = useToast();
 
   const { writeAsync: addAddress } = useContractWrite({
     addressOrName: config.PayoutsContractAddress,
     contractInterface: payoutAbi,
     functionName: "addAddress",
+  });
+  const payoutContract = useContract({
+    addressOrName: config.PayoutsContractAddress,
+    contractInterface: payoutAbi,
+    signerOrProvider: provider,
   });
 
   const { writeAsync: removeAddress } = useContractWrite({
@@ -91,18 +85,11 @@ const Lists = (props: ListsProps) => {
 
   const addAddressToList = async (address: string) => {
     if (isUserConnected) {
+      setLoading(true);
       const add = await addAddress({ args: [address] });
+      setLoading(false);
       await add.wait();
       onClose();
-    } else {
-    }
-  };
-
-  const removeAddressFromList = async (address: string) => {
-    if (isUserConnected) {
-      const add = await removeAddress({ args: [address] });
-      await add.wait();
-      onCloseRemove();
       let toastTitle = "Payer address successfully added";
 
       toast({
@@ -114,6 +101,43 @@ const Lists = (props: ListsProps) => {
     } else {
       let toastTitle = "You are not connected, Connect your wallet";
 
+      toast({
+        title: toastTitle,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const removeAddressFromList = async (address: string) => {
+    if (utils.isAddress(address)) {
+      if (isUserConnected) {
+        setLoading(true);
+        const add = await removeAddress({ args: [address] });
+        setLoading(false);
+        await add.wait();
+        onCloseRemove();
+        let toastTitle = "Payer address successfully removed";
+
+        toast({
+          title: toastTitle,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        let toastTitle = "You are not connected, Connect your wallet";
+
+        toast({
+          title: toastTitle,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } else {
+      let toastTitle = "  Please enter a valid address";
       toast({
         title: toastTitle,
         status: "error",
@@ -166,7 +190,7 @@ const Lists = (props: ListsProps) => {
               _hover={{ bg: "gray.100", color: "black" }}
               mr={3}
             >
-              Add
+              {loading ? <Spinner size="sm" color="white" /> : "Add"}
             </Button>
             <Button onClick={onClose}>Cancel</Button>
           </ModalFooter>
@@ -195,7 +219,7 @@ const Lists = (props: ListsProps) => {
               _hover={{ bg: "gray.100", color: "black" }}
               mr={3}
             >
-              Remove
+              {loading ? <Spinner size="sm" color="white" /> : "Remove"}
             </Button>
             <Button onClick={onCloseRemove}>Cancel</Button>
           </ModalFooter>
@@ -233,7 +257,6 @@ const Lists = (props: ListsProps) => {
           <Table size="md" variant="striped" colorScheme={"gray"}>
             <Thead>
               <Tr>
-                <Th>S/N</Th>
                 <Th>Address</Th>
                 <Th>Action</Th>
               </Tr>
@@ -242,26 +265,27 @@ const Lists = (props: ListsProps) => {
               {listData?.map((payer, i) => {
                 return (
                   <Tr key={i}>
-                    <Td>{payer.id}</Td>
-                    <Td>{payer.Address}</Td>
-                    <Td>
-                      <Td>
-                        <Button
-                          fontSize="sm"
-                          px="4"
-                          fontWeight="medium"
-                          bg="#FF5CAA"
-                          color="white"
-                          onClick={() => {
-                            setRemovePayer(payer.Address);
-                            onOpenRemove();
-                          }}
-                          _hover={{ bg: "gray.300", color: "black" }}
-                        >
-                          Remove
-                        </Button>
-                      </Td>
-                    </Td>
+                    {!payer.Deleted && (
+                      <>
+                        <Td>{payer.Address}</Td>
+                        <Td>
+                          <Button
+                            fontSize="sm"
+                            px="4"
+                            fontWeight="medium"
+                            bg="#FF5CAA"
+                            color="white"
+                            onClick={() => {
+                              setRemovePayer(payer.Address);
+                              onOpenRemove();
+                            }}
+                            _hover={{ bg: "gray.300", color: "black" }}
+                          >
+                            Remove
+                          </Button>
+                        </Td>
+                      </>
+                    )}
                   </Tr>
                 );
               })}
@@ -271,6 +295,6 @@ const Lists = (props: ListsProps) => {
       </Flex>
     </Box>
   );
-};
+}
 
 export default Lists;

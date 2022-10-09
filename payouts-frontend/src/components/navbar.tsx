@@ -34,7 +34,6 @@ export const Navbar = (props: FlexProps) => {
   const handleNetworkSwitch = (newNetwork: NetworkType) => {
     setCurrentNetwork(newNetwork);
   };
-
   return (
     <>
       <Flex
@@ -49,7 +48,7 @@ export const Navbar = (props: FlexProps) => {
         <NextLink href="/" passHref>
           <Flex as="a" alignItems="center" gap="3" cursor="pointer">
             <BraindaoLogo />
-            <Text fontWeight="bold" fontSize="lg">
+            <Text fontWeight="bold" fontSize={{base:'sm', md:'lg'}}>
               Editors Payouts
             </Text>
           </Flex>
@@ -59,8 +58,8 @@ export const Navbar = (props: FlexProps) => {
           <Text
             fontWeight="bold"
             as="a"
-            fontSize="lg"
-            px={4}
+            fontSize={{base:'sm', md:'lg'}}
+            px={{base:'2',md:'4'}}
             py={2}
             rounded="lg"
             _hover={{ bg: "gray.300", color: "black" }}
@@ -72,8 +71,8 @@ export const Navbar = (props: FlexProps) => {
           <Text
             fontWeight="bold"
             as="a"
-            fontSize="lg"
-            px={4}
+            fontSize={{base:'sm', md:'lg'}}
+            px={{base:'2',md:'4'}}
             py={2}
             rounded="lg"
             _hover={{ bg: "gray.300", color: "black" }}

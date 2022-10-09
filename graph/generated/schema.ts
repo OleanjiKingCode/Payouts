@@ -11,7 +11,7 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class PayoutsPayers extends Entity {
+export class Payer extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -19,18 +19,18 @@ export class PayoutsPayers extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save PayoutsPayers entity without an ID");
+    assert(id != null, "Cannot save Payer entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type PayoutsPayers must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Payer must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("PayoutsPayers", id.toString(), this);
+      store.set("Payer", id.toString(), this);
     }
   }
 
-  static load(id: string): PayoutsPayers | null {
-    return changetype<PayoutsPayers | null>(store.get("PayoutsPayers", id));
+  static load(id: string): Payer | null {
+    return changetype<Payer | null>(store.get("Payer", id));
   }
 
   get id(): string {
@@ -40,6 +40,15 @@ export class PayoutsPayers extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get Address(): Bytes {
+    let value = this.get("Address");
+    return value!.toBytes();
+  }
+
+  set Address(value: Bytes) {
+    this.set("Address", Value.fromBytes(value));
   }
 
   get Deleted(): boolean {
@@ -138,7 +147,7 @@ export class PayoutsRecord extends Entity {
   }
 }
 
-export class Editors extends Entity {
+export class Editor extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -146,18 +155,18 @@ export class Editors extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Editors entity without an ID");
+    assert(id != null, "Cannot save Editor entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Editors must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Editor must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("Editors", id.toString(), this);
+      store.set("Editor", id.toString(), this);
     }
   }
 
-  static load(id: string): Editors | null {
-    return changetype<Editors | null>(store.get("Editors", id));
+  static load(id: string): Editor | null {
+    return changetype<Editor | null>(store.get("Editor", id));
   }
 
   get id(): string {
@@ -188,7 +197,7 @@ export class Editors extends Entity {
   }
 }
 
-export class Owners extends Entity {
+export class Owner extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -196,18 +205,18 @@ export class Owners extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Owners entity without an ID");
+    assert(id != null, "Cannot save Owner entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Owners must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Owner must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("Owners", id.toString(), this);
+      store.set("Owner", id.toString(), this);
     }
   }
 
-  static load(id: string): Owners | null {
-    return changetype<Owners | null>(store.get("Owners", id));
+  static load(id: string): Owner | null {
+    return changetype<Owner | null>(store.get("Owner", id));
   }
 
   get id(): string {
