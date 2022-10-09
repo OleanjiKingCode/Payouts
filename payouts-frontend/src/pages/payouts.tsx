@@ -22,32 +22,51 @@ import {
   ModalOverlay,
   useDisclosure,
   FormLabel,
+  useToast,
 } from "@chakra-ui/react";
-import type { NextPage } from "next";
-import React from "react";
+import { InferGetServerSidePropsType } from "next";
+import React, { useState } from "react";
 import shortenAccount from "../utils/shortenAccount";
+import { PAYOUTS_LIST } from "../types/payoutsType";
+import { GET_PAYOUTS_LISTS } from "../components/Queries";
 import { BigNumber, Signer, utils, constants, Contract } from "ethers";
-import {
-  useAccount,
-  useContract,
-  useContractRead,
-  useContractWrite,
-  useSigner,
-} from "wagmi";
+import { useAccount, useContractWrite } from "wagmi";
 import { config } from "../config/index";
 import { payoutAbi } from "../components/abis/payouts";
+import { createClient } from "urql";
+const client = createClient({
+  url: config.PayoutsGraphApi,
+});
 
-const Payouts: NextPage = () => {
+export const getServerSideProps = async () => {
+  const info = await client.query(GET_PAYOUTS_LISTS, undefined).toPromise();
+  const data: PAYOUTS_LIST[] = info.data?.payoutsRecords;
+  return {
+    props: {
+      payoutsData: data ? data : [],
+    },
+  };
+};
+
+function Payouts({
+  payoutsData,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { address } = useAccount();
-  const { data: signer } = useSigner();
+  const [loading, setLoading] = useState(false);
+  const { address: currentUser, isConnected: isUserConnected } = useAccount();
+  const toast = useToast();
 
-  const { writeAsync: mint } = useContractWrite({
+  const { writeAsync: Single } = useContractWrite({
     addressOrName: config.PayoutsContractAddress,
     contractInterface: payoutAbi,
-    functionName: "mint",
+    functionName: "singlePayout",
   });
- 
+
+  const { writeAsync: Multiple } = useContractWrite({
+    addressOrName: config.PayoutsContractAddress,
+    contractInterface: payoutAbi,
+    functionName: "multiplePayout",
+  });
 
   return (
     <Box pt={10} mx={18}>
@@ -69,7 +88,7 @@ const Payouts: NextPage = () => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Adding New Payer</ModalHeader>
+          <ModalHeader>Making Payouts</ModalHeader>
           <ModalCloseButton />
           <ModalBody py={6}>
             <FormControl>
@@ -78,6 +97,8 @@ const Payouts: NextPage = () => {
             </FormControl>
 
             <FormControl mt={4}>
+              <FormLabel>Receiver's Address </FormLabel>
+              <Input placeholder="Enter wallet address " />
               <FormLabel>Amount of tokens </FormLabel>
               <Input placeholder="Enter amount of tokens " />
             </FormControl>
@@ -126,57 +147,29 @@ const Payouts: NextPage = () => {
           <Table size="md" variant="striped" colorScheme={"gray"}>
             <Thead>
               <Tr>
-                <Th>S/N</Th>
                 <Th>Editors Address</Th>
                 <Th>Date Paid</Th>
+                <Th> Amount</Th>
               </Tr>
             </Thead>
             <Tbody>
-              <Tr>
-                <Td>1</Td>
-                <Td>
-                  {" "}
-                  {shortenAccount(
-                    "0x027D704225f61176EF49D7d717bE3349f37384A2"
-                  )}{" "}
-                </Td>
-                <Td>July 23 2022</Td>
-              </Tr>
-              <Tr>
-                <Td>2</Td>
-                <Td>
-                  {" "}
-                  {shortenAccount("0xB35Adb972365309e545dDEED8Ea3DCA648226819")}
-                </Td>
-                <Td>May 16 2022</Td>
-              </Tr>
-              <Tr>
-                <Td>3</Td>
-                <Td>
-                  {shortenAccount("0xcF4E7c44d50b8de9796f236987E8729a6A5c0fe0")}
-                </Td>
-                <Td>Jan. 03 2023</Td>
-              </Tr>
-              <Tr>
-                <Td>4</Td>
-                <Td>
-                  {shortenAccount("0xfC86A332E9285DF9515B90a476B95FB0a73C31c5")}
-                </Td>
-                <Td>Nov.. 11 2022</Td>
-              </Tr>
-              <Tr>
-                <Td>5</Td>
-                <Td>
-                  {shortenAccount("0xf2445f8FEEfef350ac1756F67C62938a37eDa375")}
-                </Td>
-                <Td>Oct. 30 2022</Td>
-              </Tr>
+              {payoutsData?.map((payout, i) => {
+                return (
+                  <Tr key={i}>
+                    <>
+                      <Td>{shortenAccount(payout.Receiver)}</Td>
+                      <Td>{payout.Date}</Td>
+                      <Td>{payout.Reward}</Td>
+                    </>
+                  </Tr>
+                );
+              })}
             </Tbody>
           </Table>
         </chakra.div>
       </Flex>
     </Box>
   );
-};
+}
 
 export default Payouts;

@@ -1,10 +1,12 @@
 export const GET_PAYOUTS_LISTS = `
 query {
-    payoutsRecords(first: 5) {
+    payoutsRecords{
         id
         Sender
         Receiver
         Date
+        Rewards
+        TokenAddress
     }
 }
 `;

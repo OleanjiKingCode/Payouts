@@ -29,7 +29,7 @@ import React, { useState } from "react";
 import shortenAccount from "../utils/shortenAccount";
 import { utils } from "ethers";
 import { useAccount, useContract, useContractWrite, useProvider } from "wagmi";
-import { PAYERS_LIST } from "../components/types/payersType";
+import { PAYERS_LIST } from "../types/payersType";
 import { GET_PAYERS_LISTS } from "../components/Queries";
 import { config } from "../config/index";
 import { payoutAbi } from "../components/abis/payouts";
