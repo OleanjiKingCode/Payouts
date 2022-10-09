@@ -26,9 +26,28 @@ import {
 import type { NextPage } from "next";
 import React from "react";
 import shortenAccount from "../utils/shortenAccount";
+import { BigNumber, Signer, utils, constants, Contract } from "ethers";
+import {
+  useAccount,
+  useContract,
+  useContractRead,
+  useContractWrite,
+  useSigner,
+} from "wagmi";
+import { config } from "../config/index";
+import { payoutAbi } from "../components/abis/payouts";
 
 const Payouts: NextPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { address } = useAccount();
+  const { data: signer } = useSigner();
+
+  const { writeAsync: mint } = useContractWrite({
+    addressOrName: config.PayoutsContractAddress,
+    contractInterface: payoutAbi,
+    functionName: "mint",
+  });
+ 
 
   return (
     <Box pt={10} mx={18}>

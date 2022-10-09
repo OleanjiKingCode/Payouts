@@ -56,12 +56,28 @@ export const Navbar = (props: FlexProps) => {
         </NextLink>
         <Spacer />
         <NextLink href="/payouts" passHref>
-          <Text fontWeight="bold" as="a" fontSize="lg" px={4}>
+          <Text
+            fontWeight="bold"
+            as="a"
+            fontSize="lg"
+            px={4}
+            py={2}
+            rounded="lg"
+            _hover={{ bg: "gray.300", color: "black" }}
+          >
             Payouts
           </Text>
         </NextLink>
         <NextLink href="/lists" passHref>
-          <Text fontWeight="bold" as="a" fontSize="lg" px={4}>
+          <Text
+            fontWeight="bold"
+            as="a"
+            fontSize="lg"
+            px={4}
+            py={2}
+            rounded="lg"
+            _hover={{ bg: "gray.300", color: "black" }}
+          >
             Lists
           </Text>
         </NextLink>

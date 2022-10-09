@@ -6,15 +6,15 @@ import { NetworkType } from "../types/NetworkType";
 export const NETWORK_DATA: NetworkType[] = [
   {
     id: 1,
-    name: "Ethereum",
-    icon: Ethereum,
-    isActive: false,
-  },
-  {
-    id: 2,
     name: "Polygon",
     icon: Polygon,
     isActive: true,
+  },
+  {
+    id: 2,
+    name: "Ethereum",
+    icon: Ethereum,
+    isActive: false,
   },
   {
     id: 3,
