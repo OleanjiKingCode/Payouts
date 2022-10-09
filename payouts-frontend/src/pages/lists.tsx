@@ -22,6 +22,7 @@ import {
   ModalOverlay,
   useDisclosure,
   useMenuState,
+  useToast,
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React, { useState } from "react";
@@ -34,10 +35,37 @@ import {
   useContractWrite,
   useSigner,
 } from "wagmi";
+import { PAYERS_LIST } from "../components/types/payersType";
+import { GET_PAYERS_LISTS } from "../components/Queries";
 import { config } from "../config/index";
 import { payoutAbi } from "../components/abis/payouts";
+import { createClient } from "urql";
 
-const Lists: NextPage = () => {
+const client = createClient({
+  url: config.PayoutsGraphApi,
+});
+
+type ListsProps = {
+  listData: PAYERS_LIST[];
+};
+
+async function GetList() {
+  const data = await client.query(GET_PAYERS_LISTS, undefined).toPromise();
+  return data.data?.payers;
+}
+
+export async function getServerSideProps() {
+  const data = await GetList();
+
+  return {
+    props: {
+      lists: data ? data : [],
+    },
+  };
+}
+
+const Lists = (props: ListsProps) => {
+  const { listData } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isOpenRemove,
@@ -45,8 +73,9 @@ const Lists: NextPage = () => {
     onClose: onCloseRemove,
   } = useDisclosure();
   const [newPayer, setNewPayer] = useState("");
-  const { address } = useAccount();
-  const { data: signer } = useSigner();
+  const [removePayer, setRemovePayer] = useState("");
+  const { address, isConnected: isUserConnected } = useAccount();
+  const toast = useToast();
 
   const { writeAsync: addAddress } = useContractWrite({
     addressOrName: config.PayoutsContractAddress,
@@ -61,13 +90,37 @@ const Lists: NextPage = () => {
   });
 
   const addAddressToList = async (address: string) => {
-    const add = await addAddress({ args: [address] });
-    await add.wait();
+    if (isUserConnected) {
+      const add = await addAddress({ args: [address] });
+      await add.wait();
+      onClose();
+    } else {
+    }
   };
 
   const removeAddressFromList = async (address: string) => {
-    const add = await removeAddress({ args: [address] });
-    await add.wait();
+    if (isUserConnected) {
+      const add = await removeAddress({ args: [address] });
+      await add.wait();
+      onCloseRemove();
+      let toastTitle = "Payer address successfully added";
+
+      toast({
+        title: toastTitle,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      let toastTitle = "You are not connected, Connect your wallet";
+
+      toast({
+        title: toastTitle,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -138,7 +191,7 @@ const Lists: NextPage = () => {
               fontWeight="medium"
               bg="#FF5CAA"
               color="white"
-              onClick={() => removeAddressFromList(newPayer)}
+              onClick={() => removeAddressFromList(removePayer)}
               _hover={{ bg: "gray.100", color: "black" }}
               mr={3}
             >
@@ -186,110 +239,32 @@ const Lists: NextPage = () => {
               </Tr>
             </Thead>
             <Tbody>
-              <Tr>
-                <Td>1</Td>
-                <Td>
-                  {" "}
-                  {shortenAccount(
-                    "0x027D704225f61176EF49D7d717bE3349f37384A2"
-                  )}{" "}
-                </Td>
-
-                <Td>
-                  <Button
-                    fontSize="sm"
-                    px="4"
-                    fontWeight="medium"
-                    bg="#FF5CAA"
-                    color="white"
-                    onClick={onOpenRemove}
-                    _hover={{ bg: "gray.300", color: "black" }}
-                  >
-                    Remove
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>2</Td>
-                <Td>
-                  {" "}
-                  {shortenAccount("0xB35Adb972365309e545dDEED8Ea3DCA648226819")}
-                </Td>
-
-                <Td>
-                  <Button
-                    fontSize="sm"
-                    px="4"
-                    fontWeight="medium"
-                    bg="#FF5CAA"
-                    color="white"
-                    onClick={onOpenRemove}
-                    _hover={{ bg: "gray.300", color: "black" }}
-                  >
-                    Remove
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>3</Td>
-                <Td>
-                  {shortenAccount("0xcF4E7c44d50b8de9796f236987E8729a6A5c0fe0")}
-                </Td>
-
-                <Td>
-                  <Button
-                    fontSize="sm"
-                    px="4"
-                    fontWeight="medium"
-                    bg="#FF5CAA"
-                    color="white"
-                    onClick={onOpenRemove}
-                    _hover={{ bg: "gray.300", color: "black" }}
-                  >
-                    Remove
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>4</Td>
-                <Td>
-                  {shortenAccount("0xfC86A332E9285DF9515B90a476B95FB0a73C31c5")}
-                </Td>
-
-                <Td>
-                  <Button
-                    fontSize="sm"
-                    px="4"
-                    fontWeight="medium"
-                    bg="#FF5CAA"
-                    color="white"
-                    onClick={onOpenRemove}
-                    _hover={{ bg: "gray.300", color: "black" }}
-                  >
-                    Remove
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>5</Td>
-                <Td>
-                  {shortenAccount("0xf2445f8FEEfef350ac1756F67C62938a37eDa375")}
-                </Td>
-
-                <Td>
-                  <Button
-                    fontSize="sm"
-                    px="4"
-                    fontWeight="medium"
-                    bg="#FF5CAA"
-                    color="white"
-                    onClick={onOpenRemove}
-                    _hover={{ bg: "gray.300", color: "black" }}
-                  >
-                    Remove
-                  </Button>
-                </Td>
-              </Tr>
+              {listData?.map((payer, i) => {
+                return (
+                  <Tr key={i}>
+                    <Td>{payer.id}</Td>
+                    <Td>{payer.Address}</Td>
+                    <Td>
+                      <Td>
+                        <Button
+                          fontSize="sm"
+                          px="4"
+                          fontWeight="medium"
+                          bg="#FF5CAA"
+                          color="white"
+                          onClick={() => {
+                            setRemovePayer(payer.Address);
+                            onOpenRemove();
+                          }}
+                          _hover={{ bg: "gray.300", color: "black" }}
+                        >
+                          Remove
+                        </Button>
+                      </Td>
+                    </Td>
+                  </Tr>
+                );
+              })}
             </Tbody>
           </Table>
         </chakra.div>

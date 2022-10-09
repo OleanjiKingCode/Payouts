@@ -19,3 +19,8 @@ type Payers @entity {
   Address: Bytes!
   Deleted: Boolean!
 }
+
+type Owners @entity {
+  id: ID!
+  Address: Bytes!
+}

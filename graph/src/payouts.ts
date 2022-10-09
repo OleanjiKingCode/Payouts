@@ -2,22 +2,31 @@ import {
   Payouts,
   OwnerUpdated,
   AddressToPayersList,
-  TokenPayout
-} from "../generated/Payouts/Payouts"
-import { PayoutsRecord, Editors, Payers } from "../generated/schema";
+  TokenPayout,
+} from "../generated/Payouts/Payouts";
+import { PayoutsRecord, Editors, Payers, Owners } from "../generated/schema";
 
 export function handleaddressToPayersList(event: AddressToPayersList): void {
-  let entity = Payers.load(event.params._account.toString());
+  let entity = Payers.load(event.transaction.hash.toString());
 
   if (!entity) {
-    entity = new Payers(event.params._account.toString());
+    entity = new Payers(event.transaction.hash.toString());
   }
 
   entity.Address = event.params._account;
   entity.Deleted = event.params._action;
   entity.save();
 }
-export function handleOwnerUpdated(event: AddressToPayersList): void {}
+export function handleOwnerUpdated(event: OwnerUpdated): void {
+  let entity = Owners.load(event.params.user.toString());
+
+  if (!entity) {
+    entity = new Owners(event.params.user.toString());
+  }
+
+  entity.Address = event.params.newOwner;
+  entity.save();
+}
 export function handletokenPayout(event: TokenPayout): void {
   let entity = PayoutsRecord.load(event.transaction.hash.toString());
 

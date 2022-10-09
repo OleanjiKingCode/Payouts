@@ -49,7 +49,7 @@ const WalletConnect = ({
                 Connect your wallet to the Payouts
               </Text>
               <Text fontSize="sm" mt="1" w="95%" fontWeight="medium">
-                To proceed to the Payouts, Approve connection in your
+                To proceed to the Editor Payouts, Approve connection in your
                 wallet to authorize access
               </Text>
             </Box>
