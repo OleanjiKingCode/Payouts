@@ -1,3 +1,7 @@
+type PayoutsPayers @entity {
+  id: ID!
+  Deleted: Boolean!
+}
 type PayoutsRecord @entity {
   id: ID!
   Sender: Bytes!
@@ -12,12 +16,6 @@ type Editors @entity {
   id: ID!
   Address: Bytes!
   TotalRewards: BigInt!
-}
-
-type Payers @entity {
-  id: ID!
-  Address: Bytes!
-  Deleted: Boolean!
 }
 
 type Owners @entity {

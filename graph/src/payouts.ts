@@ -4,16 +4,14 @@ import {
   AddressToPayersList,
   TokenPayout,
 } from "../generated/Payouts/Payouts";
-import { PayoutsRecord, Editors, Payers, Owners } from "../generated/schema";
+import { PayoutsRecord, Editors, PayoutsPayers, Owners } from "../generated/schema";
 
-export function handleaddressToPayersList(event: AddressToPayersList): void {
-  let entity = Payers.load(event.transaction.hash.toString());
+export function handleAddressToPayersList(event: AddressToPayersList): void {
+  let entity = PayoutsPayers.load(event.params._account.toString());
 
   if (!entity) {
-    entity = new Payers(event.transaction.hash.toString());
+    entity = new PayoutsPayers(event.params._account.toString());
   }
-
-  entity.Address = event.params._account;
   entity.Deleted = event.params._action;
   entity.save();
 }

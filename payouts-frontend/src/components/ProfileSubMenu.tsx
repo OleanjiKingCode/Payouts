@@ -90,7 +90,7 @@ const ProfileSubMenu = () => {
       <PopoverContent
         pt="5"
         pb="6"
-        bg="bodyBg"
+        bg="white"
         w="355px"
         mr={{ md: "13", lg: "16" }}
       >
@@ -111,7 +111,7 @@ const ProfileSubMenu = () => {
                 rounded="full"
                 right="1"
                 border="solid 4px"
-                borderColor="bodyBg"
+                borderColor="white"
               />
             </chakra.div>
             <Flex direction="column" align="space-between">

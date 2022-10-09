@@ -11,6 +11,47 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
+export class PayoutsPayers extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save PayoutsPayers entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type PayoutsPayers must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("PayoutsPayers", id.toString(), this);
+    }
+  }
+
+  static load(id: string): PayoutsPayers | null {
+    return changetype<PayoutsPayers | null>(store.get("PayoutsPayers", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get Deleted(): boolean {
+    let value = this.get("Deleted");
+    return value!.toBoolean();
+  }
+
+  set Deleted(value: boolean) {
+    this.set("Deleted", Value.fromBoolean(value));
+  }
+}
+
 export class PayoutsRecord extends Entity {
   constructor(id: string) {
     super();
@@ -144,56 +185,6 @@ export class Editors extends Entity {
 
   set TotalRewards(value: BigInt) {
     this.set("TotalRewards", Value.fromBigInt(value));
-  }
-}
-
-export class Payers extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Payers entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type Payers must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Payers", id.toString(), this);
-    }
-  }
-
-  static load(id: string): Payers | null {
-    return changetype<Payers | null>(store.get("Payers", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get Address(): Bytes {
-    let value = this.get("Address");
-    return value!.toBytes();
-  }
-
-  set Address(value: Bytes) {
-    this.set("Address", Value.fromBytes(value));
-  }
-
-  get Deleted(): boolean {
-    let value = this.get("Deleted");
-    return value!.toBoolean();
-  }
-
-  set Deleted(value: boolean) {
-    this.set("Deleted", Value.fromBoolean(value));
   }
 }
 
