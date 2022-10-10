@@ -228,6 +228,15 @@ export class Owner extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get User(): Bytes {
+    let value = this.get("User");
+    return value!.toBytes();
+  }
+
+  set User(value: Bytes) {
+    this.set("User", Value.fromBytes(value));
+  }
+
   get Address(): Bytes {
     let value = this.get("Address");
     return value!.toBytes();

@@ -7,10 +7,10 @@ import {
 import { Editor, Payer, PayoutsRecord, Owner } from "../generated/schema";
 
 export function handleAddressToPayersList(event: AddressToPayersList): void {
-  let entity = Payer.load(event.params._account.toString());
+  let entity = Payer.load(event.block.timestamp.toString());
 
   if (!entity) {
-    entity = new Payer(event.params._account.toString());
+    entity = new Payer(event.block.timestamp.toString());
   }
 
   entity.Address = event.params._account;
@@ -19,20 +19,20 @@ export function handleAddressToPayersList(event: AddressToPayersList): void {
   entity.save();
 }
 export function handleOwnerUpdated(event: OwnerUpdated): void {
-  let entity = Owner.load(event.params.user.toString());
+  let entity = Owner.load(event.block.timestamp.toString());
 
   if (!entity) {
-    entity = new Owner(event.params.user.toString());
+    entity = new Owner(event.block.timestamp.toString());
   }
-
+  entity.User = event.params.user;
   entity.Address = event.params.newOwner;
   entity.save();
 }
-export function handletokenPayout(event: TokenPayout): void {
-  let entity = PayoutsRecord.load(event.transaction.hash.toString());
+export function handleTokenPayout(event: TokenPayout): void {
+  let entity = PayoutsRecord.load(event.block.timestamp.toString());
 
   if (!entity) {
-    entity = new PayoutsRecord(event.transaction.hash.toString());
+    entity = new PayoutsRecord(event.block.timestamp.toString());
   }
 
   entity.Rewards = event.params._amount;
@@ -40,16 +40,20 @@ export function handletokenPayout(event: TokenPayout): void {
   entity.Sender = event.params._from;
   entity.Receiver = event.params._receiver;
   entity.Transaction = event.transaction.hash.toString();
+  entity.TokenAddress = event.params._token;
 
-  let new_entity = Editor.load(event.params._receiver.toString());
+  let new_entity = Editor.load(event.block.timestamp.toString());
   if (!new_entity) {
-    new_entity = new Editor(event.params._receiver.toString());
+    new_entity = new Editor(event.block.timestamp.toString());
   }
 
   new_entity.Address = event.params._receiver;
-  let current_amount = new_entity.TotalRewards;
-  current_amount.plus(event.params._amount);
-  new_entity.TotalRewards = current_amount;
+  if (new_entity.TotalRewards.isZero()) {
+    new_entity.TotalRewards = event.params._amount;
+  } else {
+    let amount = new_entity.TotalRewards;
+    new_entity.TotalRewards = amount.plus(event.params._amount);
+  }
 
   new_entity.save();
   entity.save();
