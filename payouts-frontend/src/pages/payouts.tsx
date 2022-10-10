@@ -146,7 +146,7 @@ function Payouts({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Receiver's Address </FormLabel>
+              <FormLabel>Receiver&apos;s Address </FormLabel>
               <Input
                 type="text"
                 placeholder="Enter wallet address "
