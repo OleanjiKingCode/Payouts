@@ -53,6 +53,9 @@ function Payouts({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
+  const [tokenAddress, setTokenAddress] = useState("");
+  const [amount, setAmount] = useState("");
+  const [editorAddress, setEditorAddress] = useState("");
   const { address: currentUser, isConnected: isUserConnected } = useAccount();
   const toast = useToast();
 
@@ -67,6 +70,48 @@ function Payouts({
     contractInterface: payoutAbi,
     functionName: "multiplePayout",
   });
+
+  const singlePayoutAction = async (
+    editor: string,
+    amount: string,
+    token: string
+  ) => {
+    const amountParsed = utils.parseUnits(amount);
+    if (utils.isAddress(editor) && utils.isAddress(token) && amountParsed) {
+      if (isUserConnected) {
+        setLoading(true);
+        const add = await Single({ args: [token, editor, amountParsed] });
+        setLoading(false);
+        await add.wait();
+        onClose();
+        let toastTitle = "Payout done successfully";
+
+        toast({
+          title: toastTitle,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        let toastTitle = "You are not connected, Connect your wallet";
+
+        toast({
+          title: toastTitle,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } else {
+      let toastTitle = "  Please fill the fields with valid data";
+      toast({
+        title: toastTitle,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Box pt={10} mx={18}>
@@ -93,14 +138,26 @@ function Payouts({
           <ModalBody py={6}>
             <FormControl>
               <FormLabel>Token Address</FormLabel>
-              <Input placeholder="Enter token address to be sent" />
+              <Input
+                type="text"
+                placeholder="Enter token address to be sent"
+                onChange={(e) => setTokenAddress(e.target.value)}
+              />
             </FormControl>
 
             <FormControl mt={4}>
               <FormLabel>Receiver's Address </FormLabel>
-              <Input placeholder="Enter wallet address " />
+              <Input
+                type="text"
+                placeholder="Enter wallet address "
+                onChange={(e) => setEditorAddress(e.target.value)}
+              />
               <FormLabel>Amount of tokens </FormLabel>
-              <Input placeholder="Enter amount of tokens " />
+              <Input
+                type="text"
+                placeholder="Enter amount of tokens "
+                onChange={(e) => setAmount(e.target.value)}
+              />
             </FormControl>
           </ModalBody>
 
@@ -111,6 +168,9 @@ function Payouts({
               fontWeight="medium"
               bg="#FF5CAA"
               color="white"
+              onClick={() =>
+                singlePayoutAction(editorAddress, amount, tokenAddress)
+              }
               _hover={{ bg: "gray.100", color: "black" }}
               mr={3}
             >
