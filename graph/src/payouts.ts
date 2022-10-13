@@ -1,3 +1,4 @@
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   Payouts,
   OwnerUpdated,
@@ -41,20 +42,22 @@ export function handleTokenPayout(event: TokenPayout): void {
   entity.Receiver = event.params._receiver;
   entity.Transaction = event.transaction.hash.toString();
   entity.TokenAddress = event.params._token;
+  let rewards = event.params._amount.div(BigInt.fromI64(1000000000000000000));
 
   let new_entity = Editor.load(event.block.timestamp.toString());
+
+  if (new_entity) {
+    rewards = new_entity.TotalRewards.plus(
+      event.params._amount.div(BigInt.fromI64(1000000000000000000))
+    );
+  }
+
   if (!new_entity) {
     new_entity = new Editor(event.block.timestamp.toString());
   }
 
   new_entity.Address = event.params._receiver;
-  if (new_entity.TotalRewards.isZero()) {
-    new_entity.TotalRewards = event.params._amount;
-  } else {
-    let amount = new_entity.TotalRewards;
-    new_entity.TotalRewards = amount.plus(event.params._amount);
-  }
-
+  new_entity.TotalRewards = rewards;
   new_entity.save();
   entity.save();
 }
