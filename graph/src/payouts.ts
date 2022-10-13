@@ -36,7 +36,7 @@ export function handleTokenPayout(event: TokenPayout): void {
     entity = new PayoutsRecord(event.block.timestamp.toString());
   }
 
-  entity.Rewards = event.params._amount;
+  entity.Rewards = event.params._amount.div(BigInt.fromI64(1000000000000000000));
   entity.Date = event.block.timestamp.toString();
   entity.Sender = event.params._from;
   entity.Receiver = event.params._receiver;
