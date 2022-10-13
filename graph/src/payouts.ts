@@ -30,10 +30,10 @@ export function handleOwnerUpdated(event: OwnerUpdated): void {
   entity.save();
 }
 export function handleTokenPayout(event: TokenPayout): void {
-  let entity = PayoutsRecord.load(event.params._receiver.toHexString());
+  let entity = PayoutsRecord.load(event.transaction.hash.toHexString());
 
   if (!entity) {
-    entity = new PayoutsRecord(event.params._receiver.toHexString());
+    entity = new PayoutsRecord(event.transaction.hash.toHexString());
   }
 
   entity.Rewards = event.params._amount.div(
