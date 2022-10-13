@@ -30,13 +30,15 @@ export function handleOwnerUpdated(event: OwnerUpdated): void {
   entity.save();
 }
 export function handleTokenPayout(event: TokenPayout): void {
-  let entity = PayoutsRecord.load(event.block.timestamp.toString());
+  let entity = PayoutsRecord.load(event.params._receiver.toHexString());
 
   if (!entity) {
-    entity = new PayoutsRecord(event.block.timestamp.toString());
+    entity = new PayoutsRecord(event.params._receiver.toHexString());
   }
 
-  entity.Rewards = event.params._amount.div(BigInt.fromI64(1000000000000000000));
+  entity.Rewards = event.params._amount.div(
+    BigInt.fromI64(1000000000000000000)
+  );
   entity.Date = event.block.timestamp.toString();
   entity.Sender = event.params._from;
   entity.Receiver = event.params._receiver;
@@ -44,7 +46,7 @@ export function handleTokenPayout(event: TokenPayout): void {
   entity.TokenAddress = event.params._token;
   let rewards = event.params._amount.div(BigInt.fromI64(1000000000000000000));
 
-  let new_entity = Editor.load(event.block.timestamp.toString());
+  let new_entity = Editor.load(event.params._receiver.toHexString());
 
   if (new_entity) {
     rewards = new_entity.TotalRewards.plus(
@@ -53,7 +55,7 @@ export function handleTokenPayout(event: TokenPayout): void {
   }
 
   if (!new_entity) {
-    new_entity = new Editor(event.block.timestamp.toString());
+    new_entity = new Editor(event.params._receiver.toHexString());
   }
 
   new_entity.Address = event.params._receiver;
