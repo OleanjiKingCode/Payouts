@@ -8,13 +8,14 @@ import {
 import { Editor, Payer, PayoutsRecord, Owner } from "../generated/schema";
 
 export function handleAddressToPayersList(event: AddressToPayersList): void {
-  let entity = Payer.load(event.block.timestamp.toString());
+  let entity = Payer.load(event.params._account.toHexString());
 
   if (!entity) {
-    entity = new Payer(event.block.timestamp.toString());
+    entity = new Payer(event.params._account.toHexString());
   }
 
   entity.Address = event.params._account;
+  entity.Date = event.block.timestamp.toString();
   let isAmong = event.params._action;
   entity.Deleted = !isAmong;
   entity.save();

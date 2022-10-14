@@ -2,6 +2,7 @@ type Payer @entity {
   id: ID!
   Address: Bytes!
   Deleted: Boolean!
+  Date: String!
 }
 type PayoutsRecord @entity {
   id: ID!
@@ -21,6 +22,6 @@ type Editor @entity {
 
 type Owner @entity {
   id: ID!
-  User:Bytes!
+  User: Bytes!
   Address: Bytes!
 }

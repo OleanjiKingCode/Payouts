@@ -59,6 +59,15 @@ export class Payer extends Entity {
   set Deleted(value: boolean) {
     this.set("Deleted", Value.fromBoolean(value));
   }
+
+  get Date(): string {
+    let value = this.get("Date");
+    return value!.toString();
+  }
+
+  set Date(value: string) {
+    this.set("Date", Value.fromString(value));
+  }
 }
 
 export class PayoutsRecord extends Entity {
