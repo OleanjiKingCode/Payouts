@@ -14,7 +14,6 @@ export function handleAddressToPayersList(event: AddressToPayersList): void {
     entity = new Payer(event.params._account.toHexString());
   }
 
-  entity.Address = event.params._account;
   entity.Date = event.block.timestamp.toString();
   let isAmong = event.params._action;
   entity.Deleted = !isAmong;
@@ -31,10 +30,10 @@ export function handleOwnerUpdated(event: OwnerUpdated): void {
   entity.save();
 }
 export function handleTokenPayout(event: TokenPayout): void {
-  let entity = PayoutsRecord.load(event.transaction.hash.toHexString());
+  let entity = PayoutsRecord.load(event.logIndex.toString());
 
   if (!entity) {
-    entity = new PayoutsRecord(event.transaction.hash.toHexString());
+    entity = new PayoutsRecord(event.logIndex.toString());
   }
 
   entity.Rewards = event.params._amount.div(
@@ -43,14 +42,14 @@ export function handleTokenPayout(event: TokenPayout): void {
   entity.Date = event.block.timestamp.toString();
   entity.Sender = event.params._from;
   entity.Receiver = event.params._receiver;
-  entity.Transaction = event.transaction.hash.toString();
-  entity.TokenAddress = event.params._token;
+  entity.tokenAddress = event.params._token;
+  entity.transactionHash = event.transaction.hash.toHexString();
   let rewards = event.params._amount.div(BigInt.fromI64(1000000000000000000));
 
   let new_entity = Editor.load(event.params._receiver.toHexString());
 
   if (new_entity) {
-    rewards = new_entity.TotalRewards.plus(
+    rewards = new_entity.totalRewards.plus(
       event.params._amount.div(BigInt.fromI64(1000000000000000000))
     );
   }
@@ -59,8 +58,7 @@ export function handleTokenPayout(event: TokenPayout): void {
     new_entity = new Editor(event.params._receiver.toHexString());
   }
 
-  new_entity.Address = event.params._receiver;
-  new_entity.TotalRewards = rewards;
+  new_entity.totalRewards = rewards;
   new_entity.save();
   entity.save();
 }

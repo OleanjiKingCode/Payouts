@@ -42,15 +42,6 @@ export class Payer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get Address(): Bytes {
-    let value = this.get("Address");
-    return value!.toBytes();
-  }
-
-  set Address(value: Bytes) {
-    this.set("Address", Value.fromBytes(value));
-  }
-
   get Deleted(): boolean {
     let value = this.get("Deleted");
     return value!.toBoolean();
@@ -137,22 +128,22 @@ export class PayoutsRecord extends Entity {
     this.set("Rewards", Value.fromBigInt(value));
   }
 
-  get Transaction(): string {
-    let value = this.get("Transaction");
-    return value!.toString();
-  }
-
-  set Transaction(value: string) {
-    this.set("Transaction", Value.fromString(value));
-  }
-
-  get TokenAddress(): Bytes {
-    let value = this.get("TokenAddress");
+  get tokenAddress(): Bytes {
+    let value = this.get("tokenAddress");
     return value!.toBytes();
   }
 
-  set TokenAddress(value: Bytes) {
-    this.set("TokenAddress", Value.fromBytes(value));
+  set tokenAddress(value: Bytes) {
+    this.set("tokenAddress", Value.fromBytes(value));
+  }
+
+  get transactionHash(): string {
+    let value = this.get("transactionHash");
+    return value!.toString();
+  }
+
+  set transactionHash(value: string) {
+    this.set("transactionHash", Value.fromString(value));
   }
 }
 
@@ -187,22 +178,13 @@ export class Editor extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get Address(): Bytes {
-    let value = this.get("Address");
-    return value!.toBytes();
-  }
-
-  set Address(value: Bytes) {
-    this.set("Address", Value.fromBytes(value));
-  }
-
-  get TotalRewards(): BigInt {
-    let value = this.get("TotalRewards");
+  get totalRewards(): BigInt {
+    let value = this.get("totalRewards");
     return value!.toBigInt();
   }
 
-  set TotalRewards(value: BigInt) {
-    this.set("TotalRewards", Value.fromBigInt(value));
+  set totalRewards(value: BigInt) {
+    this.set("totalRewards", Value.fromBigInt(value));
   }
 }
 
