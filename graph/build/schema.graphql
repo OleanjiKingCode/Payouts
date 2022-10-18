@@ -1,14 +1,14 @@
 type Payer @entity {
   id: ID!
-  Deleted: Boolean!
-  Date: String!
+  deleted: Boolean!
+  date: String!
 }
 type PayoutsRecord @entity {
   id: ID!
-  Sender: Bytes!
-  Receiver: Bytes! # address
-  Date: String! # address
-  Rewards: BigInt!
+  sender: Bytes!
+  receiver: Bytes! # address
+  date: String! # address
+  rewards: BigInt!
   tokenAddress: Bytes!
   transactionHash: String!
 }
@@ -20,6 +20,6 @@ type Editor @entity {
 
 type Owner @entity {
   id: ID!
-  User: Bytes!
-  Address: Bytes!
+  user: Bytes!
+  address: Bytes!
 }

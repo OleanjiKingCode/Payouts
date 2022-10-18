@@ -6,7 +6,7 @@ import {console} from "../lib/forge-std/src/console.sol";
 import {Payouts} from "../src/Payouts.sol";
 
 contract PayoutScript is Script {
-    address constant owner = address(0xf2445f8FEEfef350ac1756F67C62938a37eDa375);
+    address constant owner = address(0xaCa39B187352D9805DECEd6E73A3d72ABf86E7A0);
 
     function run() external {
         console.log("Deploying Payouts contract....");
