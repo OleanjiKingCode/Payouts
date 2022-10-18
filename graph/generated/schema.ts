@@ -42,22 +42,22 @@ export class Payer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get Deleted(): boolean {
-    let value = this.get("Deleted");
+  get deleted(): boolean {
+    let value = this.get("deleted");
     return value!.toBoolean();
   }
 
-  set Deleted(value: boolean) {
-    this.set("Deleted", Value.fromBoolean(value));
+  set deleted(value: boolean) {
+    this.set("deleted", Value.fromBoolean(value));
   }
 
-  get Date(): string {
-    let value = this.get("Date");
+  get date(): string {
+    let value = this.get("date");
     return value!.toString();
   }
 
-  set Date(value: string) {
-    this.set("Date", Value.fromString(value));
+  set date(value: string) {
+    this.set("date", Value.fromString(value));
   }
 }
 
@@ -92,40 +92,40 @@ export class PayoutsRecord extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get Sender(): Bytes {
-    let value = this.get("Sender");
+  get sender(): Bytes {
+    let value = this.get("sender");
     return value!.toBytes();
   }
 
-  set Sender(value: Bytes) {
-    this.set("Sender", Value.fromBytes(value));
+  set sender(value: Bytes) {
+    this.set("sender", Value.fromBytes(value));
   }
 
-  get Receiver(): Bytes {
-    let value = this.get("Receiver");
+  get receiver(): Bytes {
+    let value = this.get("receiver");
     return value!.toBytes();
   }
 
-  set Receiver(value: Bytes) {
-    this.set("Receiver", Value.fromBytes(value));
+  set receiver(value: Bytes) {
+    this.set("receiver", Value.fromBytes(value));
   }
 
-  get Date(): string {
-    let value = this.get("Date");
+  get date(): string {
+    let value = this.get("date");
     return value!.toString();
   }
 
-  set Date(value: string) {
-    this.set("Date", Value.fromString(value));
+  set date(value: string) {
+    this.set("date", Value.fromString(value));
   }
 
-  get Rewards(): BigInt {
-    let value = this.get("Rewards");
+  get rewards(): BigInt {
+    let value = this.get("rewards");
     return value!.toBigInt();
   }
 
-  set Rewards(value: BigInt) {
-    this.set("Rewards", Value.fromBigInt(value));
+  set rewards(value: BigInt) {
+    this.set("rewards", Value.fromBigInt(value));
   }
 
   get tokenAddress(): Bytes {
@@ -219,21 +219,21 @@ export class Owner extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get User(): Bytes {
-    let value = this.get("User");
+  get user(): Bytes {
+    let value = this.get("user");
     return value!.toBytes();
   }
 
-  set User(value: Bytes) {
-    this.set("User", Value.fromBytes(value));
+  set user(value: Bytes) {
+    this.set("user", Value.fromBytes(value));
   }
 
-  get Address(): Bytes {
-    let value = this.get("Address");
+  get address(): Bytes {
+    let value = this.get("address");
     return value!.toBytes();
   }
 
-  set Address(value: Bytes) {
-    this.set("Address", Value.fromBytes(value));
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
   }
 }
