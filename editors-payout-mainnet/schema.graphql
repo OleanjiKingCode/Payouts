@@ -1,0 +1,25 @@
+type Payer @entity {
+  id: ID!
+  deleted: Boolean!
+  date: String!
+}
+type PayoutsRecord @entity {
+  id: ID!
+  sender: Bytes!
+  receiver: Bytes! # address
+  date: String! # address
+  rewards: BigInt!
+  tokenAddress: Bytes!
+  transactionHash: String!
+}
+
+type Editor @entity {
+  id: ID!
+  totalRewards: BigInt!
+}
+
+type Owner @entity {
+  id: ID!
+  user: Bytes!
+  address: Bytes!
+}

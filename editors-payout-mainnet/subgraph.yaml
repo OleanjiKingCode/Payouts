@@ -1,0 +1,30 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Payouts
+    network: matic
+    source:
+      address: "0x24d6D640D36F45D65F289774B986a6c61C95E02F"
+      abi: Payouts
+      startBlock: 34534924
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - AddressToPayersList
+        - OwnerUpdated
+        - TokenPayout
+      abis:
+        - name: Payouts
+          file: ./abis/Payouts.json
+      eventHandlers:
+        - event: AddressToPayersList(indexed address,bool)
+          handler: handleAddressToPayersList
+        - event: OwnerUpdated(indexed address,indexed address)
+          handler: handleOwnerUpdated
+        - event: TokenPayout(indexed address,address,uint256,address)
+          handler: handleTokenPayout
+      file: ./src/payouts.ts

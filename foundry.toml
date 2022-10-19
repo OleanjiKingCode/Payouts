@@ -6,6 +6,7 @@ libs = ['lib']
 [rpc_endpoints]
 mumbai = "${MUMBAI_RPC_URL}"
 
+compiler-version = 'v0.8.13+commit.abaa5c0e'
 [etherscan]
 mumbai = { key = "${ETHERSCAN_KEY}" }
 
